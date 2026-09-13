@@ -1,0 +1,46 @@
+[package]
+name = "sarvani"
+version = "1.5.1"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+shiorust = { git = "https://github.com/Narazaka/shiorust", version = "0.1.0" }
+tokio = { version = "1.21.2", features = ["macros", "rt-multi-thread"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+simplelog = "0.12.1"
+log = "0.4.17"
+encoding_rs = "0.8.32"
+rand = "0.8.5"
+regex = "1.9.5"
+md5 = "0.7.0"
+shiori_hglobal = "0.3.0"
+paste = "1.0.14"
+fancy-regex = "0.13.0"
+strum = "0.26.2"
+strum_macros = "0.26.2"
+rodio = "0.19.0"
+num-traits = "0.2.19"
+num-derive = "0.4.2"
+
+[dev-dependencies]
+tempfile = "3"
+
+[target.'cfg(windows)'.dependencies]
+winapi = {version = "0.3.9", features = ["winbase", "libloaderapi", "stringapiset", "sysinfoapi", "minwinbase"]}
+
+[lib]
+name = "sarvani"
+path = "src/lib.rs"
+crate-type = ["rlib", "cdylib"]
+
+[profile.dev]
+opt-level = 1
+
+[profile.release]
+strip = true
+opt-level = 3
+lto = true
+codegen-units = 1

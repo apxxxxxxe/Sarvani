@@ -1,0 +1,68 @@
+name: release-with-tag
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  NAR_NAME: Sarvani
+  FETCH_DEPTH: 30
+  MAIN_BRANCH: main
+
+jobs:
+  release-with-tag:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ env.MAIN_BRANCH }}
+        fetch-depth: ${{ env.FETCH_DEPTH }}
+        submodules: 'recursive'
+
+    - name: tag name
+      run: |
+        git pull --tags
+        # 直前のタグから最新タグまでのコミットメッセージを取得してenv.BODYに格納
+        LATEST_TAG=$(git tag --sort=-creatordate | head -n1 || echo "")
+        SEMI_LATEST_TAG=$(git tag --sort=-creatordate | head -n2 | tail -n1 || echo "")
+        echo "LATEST_TAG: $LATEST_TAG"
+        echo "SEMI_LATEST_TAG: $SEMI_LATEST_TAG"
+        # ユーザに関係のない開発・内部処理寄りのコミットは除外する
+        # (emojiは異体字セレクタの有無に関わらずマッチするよう基底文字で書く)
+        EXCLUDE_PATTERN='update md5|Merge pull request|Merge branch|Merge remote-tracking|♻|🔖|🔧|🔨|✅|💚|🏗|🙈|🧑‍💻|🎨|📝|⏪|🔥|✨|👷'
+        if [ -n "$LATEST_TAG" ]; then
+          BODY=$(git log "${SEMI_LATEST_TAG}..${LATEST_TAG}" --pretty=format:"%s" \
+            | { grep -vE "$EXCLUDE_PATTERN" || true; } \
+            | sed -e 's/^/- /')
+        else
+          BODY=$(git log --pretty=format:"%s" \
+            | { grep -vE "$EXCLUDE_PATTERN" || true; } \
+            | sed -e 's/^/- /' \
+            | head -n 5)
+        fi
+        echo "$BODY"
+        {
+          echo "BODY<<EOF"
+          echo "$BODY"
+          echo "EOF"
+        } >> $GITHUB_ENV
+
+    - name: Zip output
+      run: |
+        mkdir -p /tmp/nar_temp
+        rsync -av --filter=':- md5buildignore.txt' . /tmp/nar_temp/
+        echo "=== Files to be included in NAR ==="
+        find /tmp/nar_temp -type f | sort
+        echo "==================================="
+        cd /tmp/nar_temp
+        zip -r $GITHUB_WORKSPACE/${{ env.NAR_NAME }}.nar *
+
+    - name: Upload Release Asset(with tag)
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          ${{ env.NAR_NAME }}.nar
+        body: |
+          ${{ env.BODY }}

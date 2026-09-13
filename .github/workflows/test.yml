@@ -1,0 +1,43 @@
+name: cargo-test
+
+on:
+  push:
+    tags-ignore:
+      - '**' # Ignore all tags
+    branches:
+      - '*' # タグpushを除くすべてのブランチで実行
+  workflow_dispatch:
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: cache
+      uses: actions/cache@v4
+      with:
+        path: ./ghost/master/target
+        key: ${{ runner.os }}-cargo-dev-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-dev-
+
+    - name: Install latest stable
+      uses: actions-rs/toolchain@v1
+      with:
+          toolchain: stable
+          override: true
+
+    - name: Run tests
+      run: |
+        cd ghost/master
+        cargo test --verbose
+

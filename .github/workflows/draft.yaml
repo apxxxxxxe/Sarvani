@@ -1,0 +1,30 @@
+name: release-draft
+
+on:
+  workflow_dispatch:
+
+env:
+  NAR_NAME: Sarvani
+
+jobs:
+  release-draft:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+    - name: Zip output
+      run: |
+        mkdir -p /tmp/nar_temp
+        rsync -av --filter=':- md5buildignore.txt' . /tmp/nar_temp/
+        echo "=== Files to be included in NAR ==="
+        find /tmp/nar_temp -type f | sort
+        echo "==================================="
+        cd /tmp/nar_temp
+        zip -r $GITHUB_WORKSPACE/${{ env.NAR_NAME }}.nar *
+    - name: Upload test NAR
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-test
+        path: ${{ env.NAR_NAME }}.nar

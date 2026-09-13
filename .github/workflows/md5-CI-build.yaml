@@ -1,0 +1,78 @@
+name: md5-CI-build
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["cargo-test"]
+    types:
+      - completed
+    branches: ["main"]
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+env:
+  DLL_NAME: sarvani
+
+jobs:
+  build:
+    if: |
+      ${{ !startsWith(github.ref, 'refs/tags/') }} &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: windows-latest
+    steps:
+      - name: cache
+        uses: actions/cache@v4
+        with:
+          path: ./ghost/master/target
+          key: ${{ runner.os }}-cargo-release-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-release-
+
+      - name: Setup Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.21
+          check-latest: true
+
+      - name: Install Go dependencies
+        uses: actions/checkout@v4
+        with:
+          repository: apxxxxxxe/surfaces-mixer
+      - run: go install
+
+      - name: Install latest stable rust
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            override: true
+
+      - uses: actions/checkout@v4
+
+      - name: release-build
+        shell: pwsh
+        run: |
+          .\build.bat
+
+      - name: disable auto crlf
+        uses: steve02081504/disable-autocrlf@v1
+
+      - name: updates build
+        uses: Taromati2/ukagaka-mirror-md5-CI-build@v1
+        with:
+          no-push: true
+          build-mode: other
+
+      - name: git push
+        # commit and push all changes at once to avoid error
+        run: |
+          git config --local user.email "calcium629@gmail.com"
+          git config --local user.name "apxxxxxxe"
+          git config --local core.safecrlf off
+          git add .
+          git status
+          git commit -m "update md5, dll and surfaces.txt" -a
+          git pull
+          git push

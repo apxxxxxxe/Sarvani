@@ -1,0 +1,267 @@
+charset,UTF-8
+
+descript
+{
+  version,1
+  animation-sort,descend
+  collision-sort,descend
+}
+
+// ============================================================
+// サーフェス構成について
+//
+// トーク中では \s[] ではなく独自記法 h1111102 でサーフェスを指定する。
+// 7桁の内訳は次のとおり（ghost/master/src/system/response.rs を参照）。
+//
+//   h [ポーズ][顔色][眉][腕][口][目2桁]
+//
+//   ポーズ 1=通常立ち 2=くねくね 3=天を仰ぐ 4=突っ伏す
+//   顔色   1=通常 2=赤面
+//   眉     1=通常眉 2=困り眉 3=驚き眉 4=怒り眉
+//   腕     1=通常手 2=胸に手 3=シー手
+//   口     1=閉じ口 2=笑い口 3=笑い開き口 4=開き口
+//   目     01=こっち目 03=あっち目 04=こっち半目 06=あっち半目
+//          07=笑い目 08=驚き目 09=閉じ目 10=ウインク目
+//
+// h1000000 だけは特別で、キャラを消す非表示指定。
+// 下位桁を省いた h3000000 のような書き方は一枚絵ポーズの指定として有効で、
+// 非表示になるのは h1000000 のときだけ。
+//
+// ポーズ桁は素体サーフェス自体を決め、残りの桁は \![bind,グループ名,部品名,1]
+// で素体の上に重ねるパーツを決める。
+// パーツ分割がまだできていないポーズは bind アニメーションを持たないので、
+// bind 命令は空振りして一枚絵がそのまま出る。パーツを割ったら
+// 該当サーフェスに bind アニメーションを足すだけでよく、ゴースト側の変更は不要。
+//
+// 素材が揃っていないパーツは、同じポーズの近い素材を割り当てて代用しておく。
+// bind 先のアニメーションが存在しないとそのパーツだけ消えてしまうため
+// （例: 袖は素体に描かれていないので、腕のbindが空振りすると腕がなくなる）。
+// ============================================================
+
+// ------------------------------------------------------------
+// 素材一覧
+//   ファイル名は surface1[ポーズ][眉][腕][口][目2桁].png
+//   顔色だけはこの並びに桁がないので、surface0[ポーズ]00001.png に置く
+//
+//   [ポーズ1: 通常立ち]
+//   surface1100000.png 身体（顔は白紙、袖なし。パーツ合成用の素体）
+//   surface0100001.png 赤面
+//   surface1100001.png こっち目
+//   surface1100003.png あっち目
+//   surface1100004.png こっち半目
+//   surface1100006.png あっち半目
+//   surface1100007.png 笑い目
+//   surface1100008.png 驚き目
+//   surface1100009.png 閉じ目
+//   surface1100010.png ウインク目
+//   surface1100100.png 閉じ口
+//   surface1100200.png 笑い口
+//   surface1100300.png 笑い開き口
+//   surface1100400.png 開き口
+//   surface1101000.png 通常手（袖）
+//   surface1102000.png 胸に手（袖）
+//   surface1103000.png シー手（袖）
+//   surface1110000.png 通常眉
+//   surface1120000.png 困り眉
+//   surface1130000.png 驚き眉
+//   surface1140000.png 怒り眉
+//   surface1110001.png 前髪（顔パーツより前面に常時表示）
+//
+//   [ポーズ2: くねくね]
+//   surface1200000.png 身体（顔は白紙、袖なし。パーツ合成用の素体）
+//   surface0200001.png 赤面
+//   surface1200001.png こっち目
+//   surface1200003.png あっち目
+//   surface1200004.png こっち半目
+//   surface1200006.png あっち半目
+//   surface1200007.png 笑い目
+//   surface1200008.png 驚き目
+//   surface1200009.png 閉じ目
+//                      ※ウインク目は未作成。笑い目で代用
+//   surface1200100.png 閉じ口
+//   surface1200200.png 笑い口
+//   surface1200300.png 笑い開き口
+//   surface1200400.png 開き口
+//   surface1201000.png 通常手（袖）  ※胸に手・シー手は未作成
+//   surface1210000.png 通常眉
+//   surface1220000.png 困り眉
+//   surface1230000.png 驚き眉
+//   surface1240000.png 怒り眉
+//   surface1210001.png 前髪（顔パーツより前面に常時表示）
+//
+//   [パーツ未分割]
+//   surface1300000.png 天を仰ぐ身体    ※要パーツ化
+//   surface1400000.png 突っ伏す身体    ※要パーツ化
+//
+//   surface99999999.png 完全透明（kero 用および非表示用）
+// ------------------------------------------------------------
+
+// ============================================================
+// 非表示（h1000000 の行き先）
+// ============================================================
+surface0
+{
+  animation100000.interval,runonce
+  animation100000.pattern0,overlay,99999999,0,0,0
+}
+
+// ============================================================
+// ポーズ1: 通常立ち
+// ============================================================
+surface1000100
+{
+  // 素体（顔は白紙）
+  animation130000.interval,runonce
+  animation130000.pattern0,overlay,1100000,0,0,0
+
+	// 顔色
+  animation130001.interval,bind
+  animation130001.pattern0,overlay,99999999,0,0,0
+  animation130002.interval,bind
+  animation130002.pattern0,overlay,100001,0,0,0
+
+  // 目
+  animation150001.interval,bind
+  animation150001.pattern0,overlay,1100001,0,0,0
+  animation150003.interval,bind
+  animation150003.pattern0,overlay,1100003,0,0,0
+  animation150004.interval,bind
+  animation150004.pattern0,overlay,1100004,0,0,0
+  animation150006.interval,bind
+  animation150006.pattern0,overlay,1100006,0,0,0
+  animation150007.interval,bind
+  animation150007.pattern0,overlay,1100007,0,0,0
+  animation150008.interval,bind
+  animation150008.pattern0,overlay,1100008,0,0,0
+  animation150009.interval,bind
+  animation150009.pattern0,overlay,1100009,0,0,0
+  animation150010.interval,bind
+  animation150010.pattern0,overlay,1100010,0,0,0
+
+  // 口
+  animation170001.interval,bind
+  animation170001.pattern0,overlay,1100100,0,0,0
+  animation170002.interval,bind
+  animation170002.pattern0,overlay,1100200,0,0,0
+  animation170003.interval,bind
+  animation170003.pattern0,overlay,1100300,0,0,0
+  animation170004.interval,bind
+  animation170004.pattern0,overlay,1100400,0,0,0
+  animation170005.interval,bind
+  animation170005.pattern0,overlay,1100500,0,0,0
+  animation170006.interval,bind
+  animation170006.pattern0,overlay,1100600,0,0,0
+
+  // 眉
+  animation180001.interval,bind
+  animation180001.pattern0,overlay,1110000,0,0,0
+  animation180002.interval,bind
+  animation180002.pattern0,overlay,1120000,0,0,0
+  animation180003.interval,bind
+  animation180003.pattern0,overlay,1130000,0,0,0
+  animation180004.interval,bind
+  animation180004.pattern0,overlay,1140000,0,0,0
+
+  // 前髪。顔パーツを隠すので常時表示
+  animation200001.interval,runonce
+  animation200001.pattern0,overlay,1110001,0,0,0
+
+  // 腕（袖）
+  // 顔より前面に置く。シー手の指が口の位置(y=119..123)まで届くため
+  animation261001.interval,bind
+  animation261001.pattern0,overlay,1101000,0,0,0
+  animation261001.collisionex1,head,region,collision_pose_1_1.png,255,0,0
+  animation261001.collisionex2,bust,region,collision_pose_1_1.png,255,128,0
+  animation261001.collisionex3,shoulder,region,collision_pose_1_1.png,255,255,0
+
+  animation261002.interval,bind
+  animation261002.pattern0,overlay,1102000,0,0,0
+  animation261002.collisionex1,head,region,collision_pose_1_2.png,255,0,0
+  animation261002.collisionex2,bust,region,collision_pose_1_2.png,255,128,0
+  animation261002.collisionex3,shoulder,region,collision_pose_1_2.png,255,255,0
+  animation261002.collisionex4,hand,region,collision_pose_1_2.png,128,255,0
+
+  animation261003.interval,bind
+  animation261003.pattern0,overlay,1103000,0,0,0
+  animation261003.collisionex1,head,region,collision_pose_1_3.png,255,0,0
+  animation261003.collisionex2,bust,region,collision_pose_1_3.png,255,128,0
+  animation261003.collisionex3,shoulder,region,collision_pose_1_3.png,255,255,0
+  animation261003.collisionex4,hand,region,collision_pose_1_3.png,128,255,0
+}
+
+// ============================================================
+// ポーズ2: くねくね
+// ============================================================
+surface2000100
+{
+  // 素体（顔は白紙）
+  animation130000.interval,runonce
+  animation130000.pattern0,overlay,1200000,0,0,0
+
+	// 顔色
+  animation130001.interval,bind
+  animation130001.pattern0,overlay,99999999,0,0,0
+  animation130002.interval,bind
+  animation130002.pattern0,overlay,200001,0,0,0
+
+  // 目
+  animation150001.interval,bind
+  animation150001.pattern0,overlay,1200001,0,0,0
+  animation150003.interval,bind
+  animation150003.pattern0,overlay,1200003,0,0,0
+  animation150004.interval,bind
+  animation150004.pattern0,overlay,1200004,0,0,0
+  animation150006.interval,bind
+  animation150006.pattern0,overlay,1200006,0,0,0
+  animation150007.interval,bind
+  animation150007.pattern0,overlay,1200007,0,0,0
+  animation150008.interval,bind
+  animation150008.pattern0,overlay,1200008,0,0,0
+  animation150009.interval,bind
+  animation150009.pattern0,overlay,1200009,0,0,0
+  animation150010.interval,bind
+  animation150010.pattern0,overlay,1200007,0,0,0
+
+  // 口
+  animation170001.interval,bind
+  animation170001.pattern0,overlay,1200100,0,0,0
+  animation170002.interval,bind
+  animation170002.pattern0,overlay,1200200,0,0,0
+  animation170003.interval,bind
+  animation170003.pattern0,overlay,1200300,0,0,0
+  animation170004.interval,bind
+  animation170004.pattern0,overlay,1200400,0,0,0
+
+  // 眉
+  animation180001.interval,bind
+  animation180001.pattern0,overlay,1210000,0,0,0
+  animation180002.interval,bind
+  animation180002.pattern0,overlay,1220000,0,0,0
+  animation180003.interval,bind
+  animation180003.pattern0,overlay,1230000,0,0,0
+  animation180004.interval,bind
+  animation180004.pattern0,overlay,1240000,0,0,0
+
+  // 前髪。顔パーツを隠すので常時表示
+  animation200001.interval,runonce
+  animation200001.pattern0,overlay,1210001,0,0,0
+
+  // 腕（袖）
+  // 素材ができたらそれぞれの overlay を差し替えるだけでよい
+  animation191001.interval,bind
+  animation191001.pattern0,overlay,1201000,0,0,0
+  animation191001.collisionex1,head,region,collision_pose_2_1.png,255,0,0
+  animation191001.collisionex2,bust,region,collision_pose_2_1.png,255,128,0
+  animation191001.collisionex3,shoulder,region,collision_pose_2_1.png,255,255,0
+  animation191001.collisionex4,hand,region,collision_pose_2_1.png,128,255,0
+
+  animation261002.interval,bind
+  animation261002.pattern0,overlay,1201000,0,0,0
+
+  animation261003.interval,bind
+  animation261003.pattern0,overlay,1201000,0,0,0
+
+  animation261004.interval,bind
+  animation261004.pattern0,overlay,1201000,0,0,0
+}
+

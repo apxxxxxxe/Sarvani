@@ -1,0 +1,62 @@
+charset,UTF-8
+name,master
+type,shell
+id,master
+craftmanurl,https://apxxxxxxe.github.io/Sarvani
+
+sakura.seriko.alignmenttodesktop,free
+kero.seriko.alignmenttodesktop,free
+char2.seriko.alignmenttodesktop,free
+
+seriko.use_self_alpha,1
+sakura.balloon.offsetx,150
+sakura.balloon.offsety,150
+kero.balloon.offsetx,150
+kero.balloon.offsety,380
+// ============================================================
+// bindgroup 定義
+// 7桁サーフェスコードの各桁は response.rs で部品名に変換され、
+// \![bind,グループ名,部品名,1] としてここの定義に解決される。
+// ポーズ桁は素体サーフェス自体を切り替えるので bindgroup を持たない。
+// ============================================================
+
+sakura.bindoption.group,目,mustselect
+sakura.bindgroup150001.name,目,こっち目
+sakura.bindgroup150003.name,目,あっち目
+sakura.bindgroup150004.name,目,こっち半目
+sakura.bindgroup150006.name,目,あっち半目
+sakura.bindgroup150007.name,目,笑い目
+sakura.bindgroup150008.name,目,驚き目
+sakura.bindgroup150009.name,目,閉じ目
+sakura.bindgroup150010.name,目,ウインク目
+sakura.bindgroup150001.default,1
+
+sakura.bindoption.group,口,mustselect
+sakura.bindgroup170001.name,口,閉じ口
+sakura.bindgroup170002.name,口,笑い口
+sakura.bindgroup170003.name,口,笑い開き口
+sakura.bindgroup170004.name,口,開き口
+sakura.bindgroup170005.name,口,いひ口
+sakura.bindgroup170006.name,口,ぺろ口
+sakura.bindgroup170001.default,1
+
+sakura.bindoption.group,眉,mustselect
+sakura.bindgroup180001.name,眉,通常眉
+sakura.bindgroup180002.name,眉,困り眉
+sakura.bindgroup180003.name,眉,驚き眉
+sakura.bindgroup180004.name,眉,怒り眉
+sakura.bindgroup180001.default,1
+
+sakura.bindoption.group,顔色,mustselect
+sakura.bindgroup130001.name,顔色,通常
+sakura.bindgroup130002.name,顔色,赤面
+sakura.bindgroup130001.default,1
+
+sakura.bindoption.group,腕,mustselect
+sakura.bindgroup261001.name,腕,通常手
+sakura.bindgroup261001.addid,191001
+sakura.bindgroup261002.name,腕,胸に手
+sakura.bindgroup261003.name,腕,シー手
+sakura.bindgroup261001.default,1
+
+char2.menu,hidden
