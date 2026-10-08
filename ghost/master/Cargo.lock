@@ -878,7 +878,7 @@ dependencies = [
 
 [[package]]
 name = "sarvani"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "encoding_rs",
  "fancy-regex",
