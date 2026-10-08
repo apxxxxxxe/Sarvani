@@ -2,7 +2,7 @@ use crate::events::first_boot::FIRST_BOOT_TALK;
 use crate::system::error::ShioriError;
 use crate::system::response::*;
 use crate::system::variables::*;
-use shiorust::message::{parts::HeaderName, Response, *};
+use shiorust::message::{Response, *};
 
 pub(crate) fn on_boot(_req: &Request) -> Result<Response, ShioriError> {
   *get_write(&TOTAL_BOOT_COUNT) += 1;

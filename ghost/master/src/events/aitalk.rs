@@ -115,7 +115,6 @@ fn anchor_talk_dialog(id: &str, user_dialog: &str) -> Result<Response, ShioriErr
 #[cfg(test)]
 mod test {
   use super::*;
-  use crate::events::first_boot::FIRST_BOOT_MARKER;
   use crate::events::input::{on_user_input, on_user_input_cancel};
   use crate::events::periodic::on_second_change;
   use crate::events::{on_boot, on_close};
@@ -157,24 +156,16 @@ mod test {
     *get_write(&USER_NAME) = "test".to_string(); // 実際はOnNotifyUserInfoで設定される
     let req = dummy_request("OnBoot");
 
-    // 1. 初回起動: フラグが立ち、初回トークとマーカーが返る
+    // 1. 初回起動: フラグが立ち、初回トークが返る
     assert!(!get_read(&FLAGS).check(&EventFlag::FirstBoot));
     let res = on_boot(&req)?;
     assert!(get_read(&FLAGS).check(&EventFlag::FirstBoot));
     assert!(*get_read(&WAITING_FIRST_USER_NAME));
     assert!(!value_of(&res).ok_or("Failed to get value")?.is_empty());
-    assert_eq!(
-      res.headers.get_by_header_name(&HeaderName::from("Marker")),
-      Some(&FIRST_BOOT_MARKER.to_string())
-    );
 
-    // 2. 2回目以降: 通常の起動トークに切り替わり、マーカーは付かない
+    // 2. 2回目以降: 通常の起動トークに切り替わる
     let res = on_boot(&req)?;
     assert!(!value_of(&res).ok_or("Failed to get value")?.is_empty());
-    assert!(res
-      .headers
-      .get_by_header_name(&HeaderName::from("Marker"))
-      .is_none());
 
     // 3. ロードの不調の知らせは、起動トークと同じレスポンスに載る。
     //    別のレスポンスに積むと本体へ渡らず、ユーザに気づかれない

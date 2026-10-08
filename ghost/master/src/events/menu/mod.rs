@@ -48,19 +48,9 @@ pub(crate) fn on_menu_exec(_req: &Request) -> Response {
     Icon::Cross
   );
 
-  let m = format!(
-    "\\_q{}{}",
-    REMOVE_BALLOON_NUM,
-    if !get_read(&FLAGS).check(&EventFlag::FirstBoot) {
+  let m = format!("\\_q{}{}", REMOVE_BALLOON_NUM, {
+    format!(
       "\
-        \\_l[0,3em]\\![*]\\q[話の続き,OnAiTalk]\\n[150]\
-        \\![*]\\q[その名前で呼ばれたくない,OnChangingUserName]\\n\
-        "
-      .to_string()
-        + &buttons
-    } else {
-      format!(
-        "\
           \\_l[0,1.5em]\
           \\![*]\\q[なにか話して,OnAiTalk]\\n\
           \\![*]\\q[話しかける,OnTalk]\\n\
@@ -72,10 +62,9 @@ pub(crate) fn on_menu_exec(_req: &Request) -> Response {
           {}\
           \\0\\_l[0,0]\
           ",
-        talk_interval_selector, buttons,
-      )
-    },
-  );
+      talk_interval_selector, buttons,
+    )
+  },);
 
   new_response_with_value_with_notranslate(m, TranslateOption::balloon_surface_only())
 }
