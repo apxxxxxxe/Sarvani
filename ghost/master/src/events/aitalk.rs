@@ -251,6 +251,20 @@ mod test {
       .contains("無理には伺いませン"));
     assert_eq!(*get_read(&USER_NAME), "お客");
 
+    //    完全な空文字だと Reference1 が切り詰められて届く。それでも落ちない
+    *get_write(&WAITING_FIRST_USER_NAME) = true;
+    *get_write(&USER_NAME) = "test".to_string();
+    let res = on_user_input(&dummy_request_with_refs("OnUserInput", &["user_name", ""]))?;
+    assert!(value_of(&res)
+      .ok_or("Failed to get value")?
+      .contains("無理には伺いませン"));
+    assert_eq!(*get_read(&USER_NAME), "お客");
+
+    //    呼び名の変更から空で確定された場合は、いまの呼び名を残す
+    *get_write(&USER_NAME) = "test".to_string();
+    on_user_input(&dummy_request_with_refs("OnUserInput", &["user_name", ""]))?;
+    assert_eq!(*get_read(&USER_NAME), "test");
+
     // 10. 終了トークは \- で閉じる。これが無いと本体の終了が中断される
     let res = on_close(&dummy_request("OnClose"))?;
     let value = value_of(&res).ok_or("Failed to get value")?;

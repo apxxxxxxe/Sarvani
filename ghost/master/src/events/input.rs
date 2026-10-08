@@ -34,7 +34,8 @@ pub(crate) fn on_user_input(req: &Request) -> Result<Response, ShioriError> {
     error!("Unknown input id: {}", refs[0]);
     return Ok(new_response_nocontent());
   };
-  let text = refs[1].to_string();
+  // 空のまま確定されると、get_references が末尾の空の Reference1 を切り詰めて refs が1要素になる
+  let text = refs.get(1).unwrap_or(&"").to_string();
   let responser = match input_id {
     InputId::UserName => input_user_name,
   };
