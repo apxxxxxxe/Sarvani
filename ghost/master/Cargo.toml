@@ -1,6 +1,6 @@
 [package]
 name = "sarvani"
-version = "1.0.1"
+version = "1.0.2"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -41,6 +41,7 @@ opt-level = 1
 
 [profile.release]
 strip = true
-opt-level = 3
+# opt-level = 3 だと Windows Defender が Trojan:Win32/RustyStealer.ARY!MTB と誤検知する（2026-10）
+opt-level = 2
 lto = true
 codegen-units = 1
