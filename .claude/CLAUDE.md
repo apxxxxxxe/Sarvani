@@ -167,7 +167,7 @@ python ghost/master/tools/check_balloon.py ghost/master/all_talks.txt
 
 **季節や時間帯に触れるトークには `required_condition` を付ける。**「今日は暖かい」「お昼は」「この時間は眠い」「今朝」のように、実際の季節や時刻と食い違いうる言葉があれば必ず付ける。判定の関数（`is_spring`、`is_before_lunch`、`is_afternoon`、`is_after_noon`、`is_evening`）は `randomtalk.rs` の頭にあり、時刻は `system::windows::get_local_time` で取る。合う関数がなければそこに足す。
 
-条件で絞るのは抽選（`random_talks`）だけ。既読の整理・本数の集計・書き出しは条件を見ない `all_random_talks` を使う。抽選と同じ関数で既読を整理すると、時間帯の外で起動したときにそのトークの既読が消える。
+条件で絞るのは抽選（`random_talks`）と、メニューのトーク統計（`on_check_talk_collection`）。統計は分子も分母もいま条件を満たすトークだけで数える。時間外のトークまで数えると、未読が残っているのにいつまでも出てこない表示になる。既読の整理・デバッグ用の本数の集計・書き出しは条件を見ない `all_random_talks` を使う。抽選と同じ関数で既読を整理すると、時間帯の外で起動したときにそのトークの既読が消える。
 
 ## Build Commands
 

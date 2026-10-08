@@ -40,12 +40,12 @@ fn is_spring() -> bool {
   (3..=5).contains(&get_local_time().wMonth)
 }
 
-/// いま喋ってよいトーク。required_condition（季節や時間帯）を満たすものだけ。抽選に使う
+/// いま喋ってよいトーク。required_condition（季節や時間帯）を満たすものだけ。抽選とトーク統計に使う
 pub(crate) fn random_talks(talk_type: TalkType) -> Option<Vec<Talk>> {
   talks_of(talk_type, true)
 }
 
-/// 条件を問わず、定義されているトークすべて。既読の整理、本数の集計、親トークの検索、書き出しに使う。
+/// 条件を問わず、定義されているトークすべて。既読の整理、デバッグ用の本数の集計、親トークの検索、書き出しに使う。
 /// ここで条件を見ると、時間帯の外で起動したときに既読の記録が消えてしまう
 pub(crate) fn all_random_talks(talk_type: TalkType) -> Option<Vec<Talk>> {
   talks_of(talk_type, false)

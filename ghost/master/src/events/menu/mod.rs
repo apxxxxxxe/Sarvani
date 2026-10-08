@@ -1,6 +1,6 @@
 use crate::events::input::InputId;
 use crate::events::talk::playable_unseen_talks;
-use crate::events::talk::randomtalk::{all_random_talks, derivative_talks_per_talk_type};
+use crate::events::talk::randomtalk::{derivative_talks_per_talk_type, random_talks};
 use crate::events::TalkType;
 use crate::system::error::ShioriError;
 use crate::system::response::*;
@@ -111,22 +111,26 @@ pub(crate) fn on_check_talk_collection(_req: &Request) -> Response {
   let talk_collection = get_read(&TALK_COLLECTION);
   lines.push("[トーク統計]\\n".to_string());
   for talk_type in TalkType::all() {
-    // 派生トーク込みの閲覧済みトーク数
-    let len = talk_collection.get(&talk_type).map_or(0, |v| v.len());
-    // 派生トークを除いた全トーク数
-    let mut all_len = if let Some(v) = all_random_talks(talk_type) {
-      v.len()
-    } else {
-      0
-    };
-    // 派生トークのトーク数を全トーク数に加える
-    let derivative_talk_len = derivative_talks_per_talk_type()
-      .get(&talk_type)
-      .map_or(0, |v| v.len());
-    all_len += derivative_talk_len;
-    // 未読が残っていても、いまは時間外のものだけなら再生ボタンは出さない（押しても何も出ないため）
     let empty = std::collections::HashSet::new();
     let seen = talk_collection.get(&talk_type).unwrap_or(&empty);
+    // いま required_condition（季節や時間帯）を満たすトークだけを数える。
+    // 時間外のものまで数えると、未読が残っているのにいつまでも出てこない表示になる。
+    // 派生トークは、自身の条件と親トークの条件の両方を満たすものを数える
+    let available = random_talks(talk_type).unwrap_or_default();
+    let derivatives = derivative_talks_per_talk_type()
+      .get(&talk_type)
+      .cloned()
+      .unwrap_or_default();
+    let available_ids = available.iter().map(|t| t.id.as_str()).chain(
+      derivatives
+        .iter()
+        .filter(|d| d.required_condition.is_none_or(|f| f()) && available.iter().any(|t| t.id == d.parent_id))
+        .map(|d| d.id.as_str()),
+    );
+    let (len, all_len) = available_ids.fold((0, 0), |(len, all_len), id| {
+      (len + seen.contains(id) as usize, all_len + 1)
+    });
+    // 未読が残っていても、いまは時間外のものだけなら再生ボタンは出さない（押しても何も出ないため）
     let anal = if !playable_unseen_talks(talk_type, seen).is_empty() {
       format!(
         "\\n  \\f[height,13]\\q[未読トーク再生,OnCheckUnseenTalks,{}]\\f[default]",
