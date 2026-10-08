@@ -3,15 +3,9 @@ use crate::system::error::ShioriError;
 use crate::system::response::*;
 use crate::system::status::Status;
 use crate::system::variables::RANDOM_TALK_INTERVAL;
-use crate::system::variables::{get_read, get_write, EventFlag, CURRENT_SURFACE, FLAGS, GHOST_UP_TIME, IDLE_SECONDS, LAST_RANDOM_TALK_TIME, TOTAL_TIME, USER_NAME, WAITING_FIRST_USER_NAME};
+use crate::system::variables::{get_read, get_write, EventFlag, CURRENT_SURFACE, FLAGS, GHOST_UP_TIME, IDLE_SECONDS, LAST_RANDOM_TALK_TIME, TOTAL_TIME, WAITING_FIRST_USER_NAME};
 use crate::system::windows::get_local_time;
 use shiorust::message::{Request, Response};
-
-pub(crate) fn on_notify_user_info(req: &Request) -> Response {
-  let refs = get_references(req);
-  *get_write(&USER_NAME) = refs[0].to_string();
-  new_response_nocontent()
-}
 
 pub(crate) fn on_minute_change(_req: &Request) -> Response {
   new_response_nocontent()

@@ -6,7 +6,7 @@ use std::sync::LazyLock;
 /// 入力が取り消されてもここで話は閉じているようにしてある。
 pub(crate) static FIRST_BOOT_TALK: LazyLock<String> = LazyLock::new(|| {
   format!(
-    "
+    "\
       \\t\\*\
       \\0h1000000\\1(カランカラン…)\\n\\n[half]\
       \\1店の中は、壁も棚も錠前だらけだ。\\n\

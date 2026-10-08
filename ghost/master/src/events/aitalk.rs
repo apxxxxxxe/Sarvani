@@ -153,7 +153,7 @@ mod test {
   /// FLAGSとLOAD_STATUSを共有するため1つのテスト関数にまとめて直列実行する。
   #[test]
   fn test_boot() -> Result<(), Box<dyn std::error::Error>> {
-    *get_write(&USER_NAME) = "test".to_string(); // 実際はOnNotifyUserInfoで設定される
+    *get_write(&USER_NAME) = "test".to_string(); // 実際はセーブから読まれるか、初回起動の名前入力で設定される
     let req = dummy_request("OnBoot");
 
     // 1. 初回起動: フラグが立ち、初回トークが返る
